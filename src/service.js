@@ -74,6 +74,11 @@ class Service {
       q.populate(filters.$populate);
     }
 
+    // Handle collation
+    if (params.collation) {
+      q.collation(params.collation);
+    }
+
     let executeQuery = total => {
       return q.exec().then(data => {
         return {
