@@ -59,6 +59,11 @@ class Service {
       q.sort(filters.$sort);
     }
 
+    // Handle collation
+    if (params.collation) {
+      q.collation(params.collation);
+    }
+
     // Handle $limit
     if (typeof filters.$limit !== 'undefined') {
       q.limit(filters.$limit);
@@ -72,11 +77,6 @@ class Service {
     // Handle $populate
     if (filters.$populate) {
       q.populate(filters.$populate);
-    }
-
-    // Handle collation
-    if (params.collation) {
-      q.collation(params.collation);
     }
 
     let executeQuery = total => {
@@ -232,7 +232,7 @@ class Service {
   }
 
   patch (id, data, params) {
-    const query = Object.assign({}, filter(params.query || {}).query);
+    let query = Object.assign({}, filter(params.query || {}).query);
     const mapIds = page => page.data.map(current => current[this.id]);
 
     // By default we will just query for the one id. For multi patch
@@ -267,6 +267,10 @@ class Service {
       // If not using the default Mongo _id field set the id to its
       // previous value. This prevents orphaned documents.
       data[this.id] = id;
+    }
+
+    if (params.collation) {
+      query = Object.assign(query, { collation: params.collation })
     }
 
     // NOTE (EK): We need this shitty hack because update doesn't
@@ -304,7 +308,11 @@ class Service {
   }
 
   remove (id, params) {
-    const query = Object.assign({}, filter(params.query || {}).query);
+    let query = Object.assign({}, filter(params.query || {}).query);
+
+    if (params.collation) {
+      query = Object.assign(query, { collation: params.collation })
+    }
 
     if (id !== null) {
       query[this.id] = id;
