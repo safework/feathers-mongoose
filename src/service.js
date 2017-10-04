@@ -232,8 +232,12 @@ class Service {
   }
 
   patch (id, data, params) {
-    let query = Object.assign({}, filter(params.query || {}).query);
+    const query = Object.assign({}, filter(params.query || {}).query);
     const mapIds = page => page.data.map(current => current[this.id]);
+
+    if (params.collation) {
+      query.collation = params.collation
+    }
 
     // By default we will just query for the one id. For multi patch
     // we create a list of the ids of all items that will be changed
@@ -267,10 +271,6 @@ class Service {
       // If not using the default Mongo _id field set the id to its
       // previous value. This prevents orphaned documents.
       data[this.id] = id;
-    }
-
-    if (params.collation) {
-      query = Object.assign(query, { collation: params.collation })
     }
 
     // NOTE (EK): We need this shitty hack because update doesn't
@@ -308,10 +308,10 @@ class Service {
   }
 
   remove (id, params) {
-    let query = Object.assign({}, filter(params.query || {}).query);
+    const query = Object.assign({}, filter(params.query || {}).query);
 
     if (params.collation) {
-      query = Object.assign(query, { collation: params.collation })
+      query.collation = params.collation
     }
 
     if (id !== null) {
